@@ -1,6 +1,7 @@
 from .models import Barber, TimeSlot, Booking
 from .serializers import BarberSerializer, TimeSlotSerializer, BookingSerializer
 from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 class BarberViewSet(viewsets.ModelViewSet):
@@ -10,6 +11,8 @@ class BarberViewSet(viewsets.ModelViewSet):
 class TimeSlotViewSet(viewsets.ModelViewSet):
     queryset = TimeSlot.objects.all()
     serializer_class = TimeSlotSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['barber', 'date', 'is_available']
 
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
