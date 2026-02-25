@@ -2,8 +2,11 @@ from .models import Barber, TimeSlot, Booking
 from .serializers import BarberSerializer, TimeSlotSerializer, BookingSerializer
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+import resend
+import os
 
-# Create your views here.
+resend.api_key = os.getenv('RESEND_API_KEY')
+
 class BarberViewSet(viewsets.ModelViewSet):
     queryset = Barber.objects.all()
     serializer_class = BarberSerializer
@@ -23,3 +26,28 @@ class BookingViewSet(viewsets.ModelViewSet):
         timeslot = booking.timeslot
         timeslot.is_available = False
         timeslot.save()
+
+        resend.Emails.send({
+            "from": "Fade & Blade <bookings@yourdomain.com>",
+            "to": booking.customer_email,
+            "subject": "Booking Confirmation - Fade & Blade",
+            "html": f"""
+                <h2>Booking Confirmed!</h2>
+                <p>Hi {booking.customer_name},</p>
+                <p>Your booking is confirmed with {timeslot.barber.name} on {timeslot.date} at {timeslot.start_time}.</p>
+                <p>See you soon!</p>
+                <p>Fade & Blade</p>
+            """
+        })
+
+        resend.Emails.send({
+            "from": "Fade & Blade <bookings@yourdomain.com>",
+            "to": timeslot.barber.email,
+            "subject": "New Booking",
+            "html": f"""
+                <h2>New Booking</h2>
+                <p>You have a new booking from {booking.customer_name} on {timeslot.date} at {timeslot.start_time}.</p>
+                <p>Phone: {booking.phone}</p>
+                <p>Email: {booking.customer_email}</p>
+            """
+        })
