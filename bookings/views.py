@@ -2,6 +2,7 @@ from .models import Barber, TimeSlot, Booking
 from .serializers import BarberSerializer, TimeSlotSerializer, BookingSerializer
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 import resend
 import os
 
@@ -20,6 +21,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         booking = serializer.save()
