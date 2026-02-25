@@ -17,3 +17,9 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+
+    def perform_create(self, serializer):
+        booking = serializer.save()
+        timeslot = booking.timeslot
+        timeslot.is_available = False
+        timeslot.save()
