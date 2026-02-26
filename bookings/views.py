@@ -11,6 +11,7 @@ resend.api_key = os.getenv('RESEND_API_KEY')
 class BarberViewSet(viewsets.ModelViewSet):
     queryset = Barber.objects.all()
     serializer_class = BarberSerializer
+    permission_classes = [IsAuthenticated]
 
 class TimeSlotViewSet(viewsets.ModelViewSet):
     queryset = TimeSlot.objects.all()
