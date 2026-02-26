@@ -1,8 +1,8 @@
-from .models import Barber, TimeSlot, Booking
-from .serializers import BarberSerializer, TimeSlotSerializer, BookingSerializer
+from .models import Barber, BusinessHours, TimeSlot, Booking
+from .serializers import BarberSerializer, BusinessHoursSerializer, TimeSlotSerializer, BookingSerializer
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 import resend
 import os
 
@@ -22,6 +22,8 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['timeslot__barber', 'timeslot__date']
 
     def perform_create(self, serializer):
         booking = serializer.save()
@@ -53,3 +55,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                 <p>Email: {booking.customer_email}</p>
             """
         })
+
+class BusinessHoursViewSet(viewsets.ModelViewSet):
+    queryset = BusinessHours.objects.all()
+    serializer_class = BusinessHoursSerializer
+    permission_classes = [IsAuthenticated]

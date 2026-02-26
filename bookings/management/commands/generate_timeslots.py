@@ -1,33 +1,31 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from datetime import timedelta, datetime, time
-from bookings.models import Barber, TimeSlot
+from datetime import timedelta, datetime
+from bookings.models import Barber, TimeSlot, BusinessHours
 
 class Command(BaseCommand):
     help = 'Generate timeslots for the next 2 weeks'
 
     def handle(self, *args, **kwargs):
-        
         barbers = Barber.objects.all()
         today = timezone.now().date()
+        business_hours = {bh.day: bh for bh in BusinessHours.objects.all()}
 
         for day_offset in range(14):
             date = today + timedelta(days=day_offset)
-            weekday = date.weekday()  # 0 = Monday, 6 = Sunday
+            weekday = date.weekday()
 
-            if weekday == 6:  # Skip Sunday
+            if weekday not in business_hours:
                 continue
 
-            if weekday == 5:  # Saturday
-                start = time(10, 0)
-                end = time(15, 0)
-            else:  # Monday to Friday
-                start = time(9, 0)
-                end = time(17, 0)
+            bh = business_hours[weekday]
+
+            if not bh.is_open:
+                continue
 
             for barber in barbers:
-                current = datetime.combine(date, start)
-                end_dt = datetime.combine(date, end)
+                current = datetime.combine(date, bh.open_time)
+                end_dt = datetime.combine(date, bh.close_time)
 
                 while current < end_dt:
                     TimeSlot.objects.get_or_create(

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Barber, TimeSlot, Booking
+from .models import Barber, TimeSlot, Booking, BusinessHours
 
 class BarberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,4 +14,9 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
+        fields = '__all__'
+
+class BusinessHoursSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusinessHours
         fields = '__all__'
