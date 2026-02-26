@@ -35,12 +35,12 @@ class BookingViewSet(viewsets.ModelViewSet):
         resend.Emails.send({
             "from": "Fade & Blade <bookings@yourdomain.com>",
             "to": booking.customer_email,
-            "subject": "Booking Confirmation - Fade & Blade",
+            "subject": "Booking Request Received - Fade & Blade",
             "html": f"""
-                <h2>Booking Confirmed!</h2>
+                <h2>Booking Request Received</h2>
                 <p>Hi {booking.customer_name},</p>
-                <p>Your booking is confirmed with {timeslot.barber.name} on {timeslot.date} at {timeslot.start_time}.</p>
-                <p>See you soon!</p>
+                <p>We've received your booking request with {timeslot.barber.name} on {timeslot.date} at {timeslot.start_time}.</p>
+                <p>You'll receive a confirmation email once the barber has approved it.</p>
                 <p>Fade & Blade</p>
             """
         })
@@ -48,14 +48,43 @@ class BookingViewSet(viewsets.ModelViewSet):
         resend.Emails.send({
             "from": "Fade & Blade <bookings@yourdomain.com>",
             "to": timeslot.barber.email,
-            "subject": "New Booking",
+            "subject": "New Booking Request",
             "html": f"""
-                <h2>New Booking</h2>
-                <p>You have a new booking from {booking.customer_name} on {timeslot.date} at {timeslot.start_time}.</p>
+                <h2>New Booking Request</h2>
+                <p>You have a new booking request from {booking.customer_name} on {timeslot.date} at {timeslot.start_time}.</p>
                 <p>Phone: {booking.phone}</p>
                 <p>Email: {booking.customer_email}</p>
             """
         })
+
+    def perform_update(self, serializer):
+        booking = serializer.save()
+        if booking.status == 'confirmed':
+            resend.Emails.send({
+                "from": "Fade & Blade <bookings@yourdomain.com>",
+                "to": booking.customer_email,
+                "subject": "Booking Confirmed - Fade & Blade",
+                "html": f"""
+                    <h2>Booking Confirmed!</h2>
+                    <p>Hi {booking.customer_name},</p>
+                    <p>Your booking with {booking.timeslot.barber.name} on {booking.timeslot.date} at {booking.timeslot.start_time} has been confirmed.</p>
+                    <p>See you soon!</p>
+                    <p>Fade & Blade</p>
+                """
+            })
+        elif booking.status == 'rejected':
+            resend.Emails.send({
+                "from": "Fade & Blade <bookings@yourdomain.com>",
+                "to": booking.customer_email,
+                "subject": "Booking Update - Fade & Blade",
+                "html": f"""
+                    <h2>Booking Update</h2>
+                    <p>Hi {booking.customer_name},</p>
+                    <p>Unfortunately your booking request for {booking.timeslot.date} at {booking.timeslot.start_time} could not be confirmed.</p>
+                    <p>Please get in touch to rearrange.</p>
+                    <p>Fade & Blade</p>
+                """
+            })
 
 class BusinessHoursViewSet(viewsets.ModelViewSet):
     queryset = BusinessHours.objects.all()
