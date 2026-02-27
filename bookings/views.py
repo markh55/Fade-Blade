@@ -1,5 +1,5 @@
-from .models import Barber, BusinessHours, TimeSlot, Booking
-from .serializers import BarberSerializer, BusinessHoursSerializer, TimeSlotSerializer, BookingSerializer
+from .models import Barber, BusinessHours, TimeSlot, Booking, Media
+from .serializers import BarberSerializer, BusinessHoursSerializer, TimeSlotSerializer, BookingSerializer, MediaSerializer
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -89,4 +89,9 @@ class BookingViewSet(viewsets.ModelViewSet):
 class BusinessHoursViewSet(viewsets.ModelViewSet):
     queryset = BusinessHours.objects.all()
     serializer_class = BusinessHoursSerializer
+    permission_classes = [IsAuthenticated]
+
+class MediaViewSet(viewsets.ModelViewSet):
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
     permission_classes = [IsAuthenticated]
