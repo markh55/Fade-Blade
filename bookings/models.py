@@ -57,11 +57,13 @@ class BusinessHours(models.Model):
 
     def __str__(self):
         return f"{self.get_day_display()} {self.open_time} - {self.close_time}"
-    
+
 
 class Media(models.Model):
     file = CloudinaryField('file')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name_plural = 'Media'
 
     def __str__(self):
         return f"Media {self.id} - {self.file.public_id}"
