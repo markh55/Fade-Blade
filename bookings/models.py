@@ -61,9 +61,12 @@ class BusinessHours(models.Model):
 
 class Media(models.Model):
     file = CloudinaryField('file')
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         verbose_name_plural = 'Media'
 
     def __str__(self):
-        return f"Media {self.id} - {self.file.public_id}"
+        return self.title
